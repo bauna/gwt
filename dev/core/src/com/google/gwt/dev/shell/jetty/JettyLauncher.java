@@ -22,6 +22,7 @@ import com.google.gwt.core.ext.UnableToCompleteException;
 import com.google.gwt.dev.util.InstalledHelpInfo;
 import com.google.gwt.dev.util.Util;
 
+import org.apache.jasper.servlet.JspServlet;
 import org.apache.tools.ant.taskdefs.Javac;
 import org.eclipse.jdt.core.JDTCompilerAdapter;
 import org.eclipse.jetty.http.HttpField;
@@ -53,6 +54,7 @@ import java.net.URL;
 import java.net.URLConnection;
 
 import javax.imageio.ImageIO;
+import javax.servlet.ServletRegistration.Dynamic;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
@@ -535,6 +537,21 @@ public class JettyLauncher extends ServletContainerLauncher {
       // Prevent file locking on Windows; pick up file changes.
       getInitParams().put(
           "org.eclipse.jetty.servlet.Default.useFileMappedBuffer", "false");
+
+      Dynamic jspServlet = getServletContext().addServlet("jsp", JspServlet.class);
+      jspServlet.setLoadOnStartup(0);
+      jspServlet.setInitParameter("logVerbosityLevel", "DEBUG");
+      jspServlet.setInitParameter("fork", "false");
+      jspServlet.setInitParameter("keepgenerated", "true");
+
+      jspServlet.addMapping("*.jsp");
+      jspServlet.addMapping("*.jspf");
+      jspServlet.addMapping("*.jspx");
+      jspServlet.addMapping("*.xsp");
+      jspServlet.addMapping("*.JSP");
+      jspServlet.addMapping("*.JSPF");
+      jspServlet.addMapping("*.JSPX");
+      jspServlet.addMapping("*.XSP");
 
       // Since the parent class loader is bootstrap-only, prefer it first.
       setParentLoaderPriority(true);
